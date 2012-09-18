@@ -59,14 +59,11 @@ public class MainActivity extends Activity {
 		        	   intent = new Intent(MainActivity.this, EfficiencyActivity.class);
 		        	   intent.putExtra("delDB", true);
 		        	   startActivity(intent);
-		        	   
 		               return true;
 		           case R.id.introduce:
 		               return true;
 		           }
-
 		           return (super.onOptionsItemSelected(item));
-
 		   }
 
     @Override

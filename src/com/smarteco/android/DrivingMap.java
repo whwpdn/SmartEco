@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -31,7 +32,7 @@ import com.facebook.android.Facebook.DialogListener;
 import com.facebook.android.FacebookError;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
-
+import com.google.android.maps.MapController;
 
 public class DrivingMap extends MapActivity implements SensorEventListener{
 	MapView mapView;
@@ -42,10 +43,13 @@ public class DrivingMap extends MapActivity implements SensorEventListener{
 	EditText EditText1;
 	Button btndraw;
 	EditText accMap;
+	MapController mapController;
+	 Drawable marker = null;
 //	SensorActivity accsensor;
 	Canvas canvas;
 	//FacebookPosting fbPosting;
 	 private Facebook mFacebook = new Facebook(C.FACEBOOK_APP_ID);
+	
 	
 	//////////////////////////////////
 	SensorManager sm;
@@ -65,6 +69,10 @@ public class DrivingMap extends MapActivity implements SensorEventListener{
 	float accScala;
 	float beforeaccScala=0;
 	float nowacc;
+	
+	Button _facebookPosting;
+	Button _drivingStart;
+	Button _drivingFinish;
 
 	TextView acc;
 	TextView distance;
@@ -74,32 +82,35 @@ public class DrivingMap extends MapActivity implements SensorEventListener{
 	View.OnClickListener bHandler = new View.OnClickListener(){
 		public void onClick(View v){
 			switch(v.getId()){	
-			case R.id.button4:				// 주행 종료 버튼
+			case R.id.button1:
+				 Log.v("test","주행시작1");
+				 login();
+				 mMyOverlay.locstate(1);
+				 mMyOverlay.drawstate(2);
+				 nowstate.setText("주행기록중입니다\n안전운전하세요");
+				 Log.v("test","주행 종료2");
+				 _drivingStart.setVisibility(View.INVISIBLE);
+				 _drivingFinish.setVisibility(View.VISIBLE);
+				break;
+			case R.id.button2:
 				mMyOverlay.locstate(2);
-				 mMyOverlay.drawstate(1);
-				 Log.v("test","주행종료1");
+				 mMyOverlay.drawstate(1);				
+				 nowstate.setText("주행이 종료되었습니다");
+				 _drivingFinish.setVisibility(View.INVISIBLE);
+				 _facebookPosting.setVisibility(View.VISIBLE);
+				break;
+			case R.id.button3:
+				 Log.v("test","facebook");
 				 try {
 					 Log.v("test","logintest");
-					 //login();
 					 Log.v("test","login");
 					 screenshot(mapView);
 					 Log.v("test","screen compl");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					Log.v("test","login에러?");
 				}
-				 nowstate.setText("주행이 종료되었습니다");
-				 Log.v("test","주행 종료2");
-				break;
-			case R.id.button5:				// 주행 시작 버튼
-				login();
-				 Log.v("test","주행시작1");
-				 Log.v("test","로그인되었습니다.");
-				 mMyOverlay.locstate(1);
-				 mMyOverlay.drawstate(2);
-				 nowstate.setText("주행기록중입니다\n안전운전하세요");
-				 Log.v("test","주행 종료2");
+				 Log.v("test","facebook-end");
 				break;
 		}
 		}
@@ -138,7 +149,7 @@ public class DrivingMap extends MapActivity implements SensorEventListener{
 		   imgData = bitmapToByteArray(screenshot);
 		   Bundle params = new Bundle();
 //		   params.putString("message",mEtContent.getText().toString());
-		   params.putString("message","주행 기록 입니다.");
+		   params.putString("message","하이");
 		   params.putString("picture", "test.jpg");
 		   params.putString("link","");
 		   params.putString("description", "");
@@ -213,9 +224,13 @@ public class DrivingMap extends MapActivity implements SensorEventListener{
         setContentView(R.layout.activity_drivingmap);
         mContext = this;
         mapView = (MapView)findViewById(R.id.mapview);
+        _drivingStart = (Button) findViewById(R.id.button1);
+        _drivingFinish = (Button) findViewById(R.id.button2);
+        _facebookPosting = (Button) findViewById(R.id.button3);
        
-        findViewById(R.id.button4).setOnClickListener(bHandler);
-        findViewById(R.id.button5).setOnClickListener(bHandler);
+        findViewById(R.id.button1).setOnClickListener(bHandler);
+        findViewById(R.id.button2).setOnClickListener(bHandler);
+        findViewById(R.id.button3).setOnClickListener(bHandler);
         
         
         ////////////////////////////////////////////////////
@@ -227,27 +242,35 @@ public class DrivingMap extends MapActivity implements SensorEventListener{
 
         ////////////////////////////////////////////////////
         
-        
-        mapView.setBuiltInZoomControls(true);     // 줌콘트롤러 아이콘 표시  
+//        mapController.setZoom(9);
+//        mapView.setBuiltInZoomControls(true);     // 줌콘트롤러 아이콘 표시  
+//        mapController.animateTo(mMyOverlay.getMyLocation());
+//        mapController.setZoom(mapView.getMaxZoomLevel());
         mMyOverlay = new LocationOverlay(mContext, mapView);
         mapView.getOverlays().add(mMyOverlay);
-        
-        distance.setText("Total = " + mMyOverlay.TotalDistance + "\n Lvl3 = " + mMyOverlay.Lvl3Distance);
+        mapController = mapView.getController();
+//        mapController.setZoom(12);
+        mapController.setZoom(mapView.getMaxZoomLevel()-5);
+        distance.setText("Total = " + mMyOverlay.TotalDistance);
 
+
+      
         //getBestProvider 조건 gps 네트웍 선택
         mLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        String provider = LocationManager.GPS_PROVIDER;
+//        String provider = LocationManager.GPS_PROVIDER;
+//        
+//       // mLocationProvider = mLocationManager.GPS_PROVIDER;
+//        GPSListener gpsListener = new GPSListener();
+//        mLocationManager.requestLocationUpdates(
+//					provider,
+//					3000,
+//					1,
+//					gpsListener);
         
-       // mLocationProvider = mLocationManager.GPS_PROVIDER;
-        GPSListener gpsListener = new GPSListener();
-        mLocationManager.requestLocationUpdates(
-					provider,
-					3000,
-					1,
-					gpsListener);
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);	//정확도
         criteria.setPowerRequirement(Criteria.POWER_LOW);	//절전정도
+        criteria.setAltitudeRequired(false);	//해발
         criteria.setBearingRequired(true);	//나침반 방향
         criteria.setSpeedRequired(false);	//속도
         criteria.setCostAllowed(true);		//비용
@@ -310,18 +333,13 @@ public class DrivingMap extends MapActivity implements SensorEventListener{
 	{
 		return false;	//만일 액티비티가 운전 방향을 표시하고 있다면 반드시 true를 리턴해야함. 그렇지 않으면 false 리턴
 	}
-	
 	class GPSListener implements LocationListener{
-
 		public void onLocationChanged(Location location) {
 			// TODO Auto-generated method stub
-
 		}
-
 		public void onProviderDisabled(String provider) {
 			// TODO Auto-generated method stub	
 		}
-
 		public void onProviderEnabled(String provider) {
 			// TODO Auto-generated method stub
 		}

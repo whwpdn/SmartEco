@@ -56,6 +56,7 @@ public class EfficiencyActivity extends Activity {
         getData();//db data 불러오기
         adapter = new ListAdapter(this, R.layout.item, data);	// 어댑터에  불러온 data 를 listview에 삽입준비..
         list.setAdapter(adapter);	// list view 보여주기.. adapter에 있는 data를 listview 에 출력 
+       
         Intent intent = getIntent();
         dbFlag = intent.getBooleanExtra("delDB",true);
         if(dbFlag){

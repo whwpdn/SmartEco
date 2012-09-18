@@ -28,8 +28,8 @@ class LocationOverlay extends MyLocationOverlay
 	float TotalDistance=0;
 	float Lvl3Distance;
 	float _acclvl=1;
-	int _drawstate=0;
-	int _mylocstate=0;
+	int _drawstate=1;
+	int _mylocstate=1;
 	
 	
 	public LocationOverlay(Context context, MapView mapView) 
@@ -55,11 +55,13 @@ class LocationOverlay extends MyLocationOverlay
 	{
 		super.onLocationChanged(location);		
 		mMyCurrentLocation = location;
+	
 		if(_mylocstate != 0  && mMyCurrentLocation != null)
 		{		
 			Log.v("test", "좌표수신");
 			_MyMovingposition.add(new MyMovingposition(mMyCurrentLocation, _acclvl));
-			Log.v("test", "좌표저장");
+
+			Log.v("test", "좌표저장"+_acclvl);
 		}
 		else 
 			return ;
@@ -98,8 +100,8 @@ class LocationOverlay extends MyLocationOverlay
 
 	public void updatePath(int _cycle)
 	{	
-		Point startPoint = new Point();
-		Point endPoint = new Point();
+		Point beforePoint = new Point();
+		Point currentPoint = new Point();
 		Point tempPoint = new Point();
 		int check=0;
 		Path p = new Path();
@@ -111,28 +113,29 @@ class LocationOverlay extends MyLocationOverlay
 			for(int i = 1 ; i < _MyMovingposition.size(); i++){
 				MyMovingposition current = _MyMovingposition.get(i);
 				MyMovingposition before = _MyMovingposition.get(i-1);
-				mMapView.getProjection().toPixels(new GeoPoint((int)(before._CurrentLocation.getLatitude()*1E6), (int)(before._CurrentLocation.getLongitude()*1E6)), startPoint);
-				mMapView.getProjection().toPixels(new GeoPoint((int)(current._CurrentLocation.getLatitude()*1E6), (int)(current._CurrentLocation.getLongitude()*1E6)), endPoint);
+				mMapView.getProjection().toPixels(new GeoPoint((int)(before._CurrentLocation.getLatitude()*1E6), (int)(before._CurrentLocation.getLongitude()*1E6)), beforePoint);
+				mMapView.getProjection().toPixels(new GeoPoint((int)(current._CurrentLocation.getLatitude()*1E6), (int)(current._CurrentLocation.getLongitude()*1E6)), currentPoint);
 				mMyDistance = current._CurrentLocation.distanceTo(before._CurrentLocation);
-				Log.v("test", "그리기거리"+mMyDistance);
+//				Log.v("test", "그리기거리"+mMyDistance);
 				if(mMyDistance > 30){
-					Log.v("test", "30미터이상");
+//					Log.v("test", "30미터이상");
 					if(check==1){
-						startPoint = tempPoint;
+						beforePoint = tempPoint;
 						check=0;
 					}
 					else {
-						tempPoint = startPoint;
+						tempPoint = beforePoint;
 						check++;
 					}
 					continue;
 				}
 				else {
-					Log.v("test", "30미터이하 그리기");
-					p.moveTo(startPoint.x, startPoint.y);
-					p.lineTo(endPoint.x, endPoint.y);
+//					Log.v("test", "30미터이하 그리기");
+					p.moveTo(beforePoint.x, beforePoint.y);	
+					Log.v("test", "과속"+current._acclvl);
+					p.lineTo(currentPoint.x, currentPoint.y);
 					TotalDistance = mMyDistance+TotalDistance;			
-					Log.d("test11", "total"+TotalDistance);
+//					Log.d("test11", "total"+TotalDistance);
 					
 				}
 				mPath.addPath(p);	
@@ -140,34 +143,19 @@ class LocationOverlay extends MyLocationOverlay
 			break;
 			
 		case 2:
+			
 			mPaint.setColor(Color.RED);
+			Log.v("test", "과속그리기테스트");
 			for(int i = 1 ; i < _MyMovingposition.size(); i++){
 				MyMovingposition current = _MyMovingposition.get(i);
 				MyMovingposition before = _MyMovingposition.get(i-1);
-				mMapView.getProjection().toPixels(new GeoPoint((int)(before._CurrentLocation.getLatitude()*1E6), (int)(before._CurrentLocation.getLongitude()*1E6)), startPoint);
-				mMapView.getProjection().toPixels(new GeoPoint((int)(current._CurrentLocation.getLatitude()*1E6), (int)(current._CurrentLocation.getLongitude()*1E6)), endPoint);
+				mMapView.getProjection().toPixels(new GeoPoint((int)(current._CurrentLocation.getLatitude()*1E6), (int)(current._CurrentLocation.getLongitude()*1E6)), currentPoint);
 				mMyDistance = current._CurrentLocation.distanceTo(before._CurrentLocation);
-				
-				if(mMyDistance > 30){
-					if(check==1){
-						startPoint = tempPoint;
-						check=0;
-					}
-					else {
-						tempPoint = startPoint;
-						check++;
-					}
-					continue;
-				}
-				else {
+				Log.v("test", "과속"+current._acclvl);
 					if(current._acclvl != 1){
-						p.addCircle(startPoint.x, startPoint.y, current._acclvl*15 ,Path.Direction.CW);
-//						p.moveTo(startPoint.x, startPoint.y);
-//						p.lineTo(endPoint.x, endPoint.y);
-					}		
-					else
-						break;
-				}
+						p.moveTo(currentPoint.x, currentPoint.y);
+						p.addCircle(currentPoint.x, currentPoint.y, current._acclvl*10,Path.Direction.CW);
+					}
 				mPath.addPath(p);
 			}
 			break;
@@ -202,8 +190,9 @@ class MyMovingposition{
 	public float _acclvl;
 	public Location _CurrentLocation;
 	
-	public MyMovingposition(Location _MyCurrentLocation, float _acclvl) {
+	public MyMovingposition(Location _MyCurrentLocation, float _Myacclvl) {
 		_CurrentLocation =_MyCurrentLocation;
+		_acclvl = _Myacclvl;
 		// TODO Auto-generated constructor stub
 	}
 }
