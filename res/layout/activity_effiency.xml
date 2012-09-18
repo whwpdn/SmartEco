@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" 
+    android:background="@drawable/oil">
+
+    <Button
+        android:id="@+id/bt_cal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="입력" 
+        />
+   <RelativeLayout android:background="@drawable/shape"
+       android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+		
+        <TextView
+            android:id="@+id/toilefficiency"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:text="@string/efficiency"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/totaldistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/toilefficiency"
+            android:text="@string/totaldistance"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/toil"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/toilefficiency"
+            android:text="@string/oil"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/tdate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/tdriving"
+            android:text="@string/date"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/tdistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tdate"
+            android:layout_marginLeft="44dp"
+            android:layout_toRightOf="@+id/toil"
+            android:text="@string/distance"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/listView1"
+        android:layout_width="match_parent"
+        android:layout_height="325dp"
+        android:layout_weight="574.32" >
+
+    </ListView>
+
+</LinearLayout>

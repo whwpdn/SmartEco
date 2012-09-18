@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/facebook" android:title="@string/sns"></item>
+    <item android:id="@+id/delDB" android:title="@string/delDB"></item>
+    <item android:id="@+id/introduce" android:title="App 소개"></item>
+    
+
+</menu>
