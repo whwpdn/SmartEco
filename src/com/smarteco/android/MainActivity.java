@@ -2,7 +2,6 @@ package com.smarteco.android;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,18 +48,16 @@ public class MainActivity extends Activity {
 		startActivity(intent);		
 		
 	}
-	   
 	public boolean onOptionsItemSelected(MenuItem item) {
 		           switch (item.getItemId()) {
-		           case R.id.facebook:
-		               return true;
-
 		           case R.id.delDB:
 		        	   intent = new Intent(MainActivity.this, EfficiencyActivity.class);
 		        	   intent.putExtra("delDB", true);
 		        	   startActivity(intent);
 		               return true;
 		           case R.id.introduce:
+		        	   intent = new Intent(MainActivity.this, TutorialActivity.class);
+		        	   startActivity(intent);
 		               return true;
 		           }
 		           return (super.onOptionsItemSelected(item));

@@ -1,24 +1,29 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" 
-    android:background="@drawable/car1">
+    android:layout_height="match_parent"
+    android:background="@drawable/car2" >
 
     <Button
         android:id="@+id/effiency"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="66dp"
-        android:text="@string/efficiency" />
+        android:layout_alignParentRight="true"
+        android:background="@drawable/oilstation"
+         />
+        <!--android:text="@string/efficiency"        android:textSize="30dp"-->
+        
 
     <Button
         android:id="@+id/drivingmap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/effiency"
-        android:layout_alignLeft="@+id/effiency"
-        android:text="@string/driving" />
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/drive"
+     	/>
+        <!--   android:text="@string/driving"android:textSize="30dp" -->
+        	
 
 </RelativeLayout>

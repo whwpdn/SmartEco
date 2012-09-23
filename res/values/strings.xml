@@ -1,14 +1,14 @@
 <resources>
 
-    <string name="app_name">TestApp3</string>
-    <string name="driving">주행</string>
+    <string name="app_name">SmartEco</string>
+    <string name="driving">주  행</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="efficiency">연비</string>
-    <string name="oil">주유량</string>
-    <string name="distance">주행거리</string>
+    <string name="efficiency">연  비</string>
+    <string name="oil">주유량( 리터(L) )</string>
+    <string name="distance">주행거리(Km)</string>
     <string name="cal">계산</string>
-    <string name="releaseapi">0OHaFV7H2PMwrSsaiXGpRfzQrXOUuBndPbSjSQw</string>
+    <string name="releaseapi">0OHaFV7H2PMwmXV57NAGwBmT1CidhnVUZd-L3kg</string>
     <string name="debugapi">0OHaFV7H2PMwkSq5tVSeItfR9CdZ1dbuPj4ux8A</string>
     <string name="fix">수정</string>
     <string name="msg_del">삭제 하시겠습니까?</string>
@@ -16,5 +16,7 @@
     <string name="totaldistance">총 주행거리</string>
     <string name="sns">Facebook 인증</string>
     <string name="delDB">데이터베이스 초기화</string>
+    <string name="avgeff">평균연비</string>
+    <string name="totaloil">총 주유량</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package com.smarteco.android;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -13,6 +14,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -21,26 +25,30 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class EfficiencyActivity extends Activity {
     /** Called when the activity is first created. */
 	// 위젯 관련
-	Button btnCalc; //Button dbdrop;
+	Button btnCalc; 
 	EditText editDistance, editOil;
+	TextView tvavgefficiency, tvtotaldistance, tvtotaloil;
 	ListView list;
 	DatePicker datepick;
 	// 아이템
 	ArrayList<ListItem> data = null;
     ListAdapter adapter = null;
     // 임시 값..
-    int totaldistance;
-    int _index;
+    private int _index;
+    
     //DB관련
     SQLiteDatabase m_db;
     String strSQL;
     Cursor m_cursor;
     boolean dbFlag = false;
+
     
     public void onCreate(Bundle savedInstanceState) {
         
@@ -61,7 +69,6 @@ public class EfficiencyActivity extends Activity {
         dbFlag = intent.getBooleanExtra("delDB",true);
         if(dbFlag){
         	confirmAlert();
-        	
         }
         // listview의 item을 오래 터치시 발생 event 처리.
         list.setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -75,7 +82,11 @@ public class EfficiencyActivity extends Activity {
     ///   methods ~~~~ /////////////
        
 	void saveData(){
-		//context 에 현재 EfficiencyActivity 를 할당..
+		ListItem temp_item=null;
+		if(data.size()!=0){
+			temp_item = data.get(data.size()-1);
+		}
+	  //context 에 현재 EfficiencyActivity 를 할당..
 		Context mContext = com.smarteco.android.EfficiencyActivity.this;
 		// 다이얼로그 창을 띄우기 위한 객체
 		AlertDialog.Builder builder;
@@ -89,7 +100,10 @@ public class EfficiencyActivity extends Activity {
 		editDistance = (EditText)layout.findViewById(R.id.ed_distance);
 		editOil = (EditText)layout.findViewById(R.id.ed_oil);
 		datepick = (DatePicker)layout.findViewById(R.id.datePicker);
-		
+		if(data.size()!=0){
+			editDistance.setHint("이전 기록 : "+Integer.toString(temp_item.getTotaldistance())+" Km");
+			editOil.setHint("이전 기록 : "+Integer.toString(temp_item.getOil())+" L");
+		}
 		builder.setView(layout);
 		
 		builder.setTitle("주유 정보를 입력하세요");
@@ -149,16 +163,14 @@ public class EfficiencyActivity extends Activity {
 			case R.id.bt_cal:
 				saveData();
 				break;
-				// DB초기화 테스트
-//			case R.id.dbdrop:
-//				createTable();
-//				dropTable();
-//				break;
 			}
 		}
 	};
     
-    private void alert(final int index){
+	
+	
+	
+    public void alert(final int index){
     	 
     	new AlertDialog.Builder(this)
     	.setItems(C.items,new DialogInterface.OnClickListener(){
@@ -170,12 +182,12 @@ public class EfficiencyActivity extends Activity {
      		case 1:// 삭제
      			deleteData(index);
      			break;
-     		}
+     			}
     		}
     	})
     	.show();
     }
-    private void err_alert(){
+    public void err_alert(){
    	 
     	new AlertDialog.Builder(this)
     	.setTitle("입력 오류")
@@ -183,7 +195,7 @@ public class EfficiencyActivity extends Activity {
     	.show();
     }
     
-    private void confirmAlert(){
+    public void confirmAlert(){
     	new AlertDialog.Builder(this)
     	.setTitle("확인")
 		.setMessage("데이터베이스를 초기화 하시겠습니까 ?(복구 할 수 없음)")
@@ -210,7 +222,7 @@ public class EfficiencyActivity extends Activity {
     	
     	m_db = openOrCreateDatabase("efficiency.db",Context.MODE_PRIVATE,null);
        	if(!m_db.isOpen()){
-    		Log.v("SQLite","openOrCreateDatabase ... Fail");
+    		Log.v("SQLite","openOrCreate Fail");
     		return;
     	}
     	try{
@@ -232,7 +244,7 @@ public class EfficiencyActivity extends Activity {
     	}
     	finally{
     		//m_db.close();
-    		//Log.i("SQLite","Database Close ... OK");
+    	
     	}
     	
     }
@@ -252,7 +264,6 @@ public class EfficiencyActivity extends Activity {
 			");";
 	   m_db.execSQL(strSQL);  
 	   m_cursor.close();
-	   //m_db.close();
 	   Log.i("SQLite","Insert data ... OK");
 	  
    }
@@ -265,7 +276,6 @@ public class EfficiencyActivity extends Activity {
 		
 		   if(m_cursor.moveToFirst()){
 			   do{
-				   
 					   data.add(new ListItem(m_cursor.getString(1),		// date
 							   m_cursor.getInt(2),						// distance
 							   m_cursor.getInt(3),						// oil
@@ -297,14 +307,21 @@ public class EfficiencyActivity extends Activity {
 	
 	
 	public void deleteData(int index){
+		int _index = index;
 		createTable();
 		int fix_distance=0;
 		m_cursor = m_db.rawQuery("SELECT * FROM efficiency",null);
 		m_cursor.moveToPosition(index);
-		
-		
-		if(m_cursor.isFirst()||m_cursor.isLast()){
-			Log.v("Tee1",Integer.toString(m_cursor.getPosition()));
+			
+		if(m_cursor.isLast()){
+			
+		}
+		else if(m_cursor.isFirst()){
+			fix_distance =0;
+			m_cursor.moveToPosition(index+1);
+			strSQL="UPDATE efficiency SET _distance="+fix_distance+" WHERE _id="+(index+1)+";";
+			m_db.execSQL(strSQL);
+			data.set(index+1, new ListItem(m_cursor.getString(1),fix_distance,m_cursor.getInt(3),m_cursor.getInt(4)));
 		}
 		else{
 			index = index+1;
@@ -313,7 +330,13 @@ public class EfficiencyActivity extends Activity {
 			index = index-2;
 			m_cursor.moveToPosition(index);
 			fix_distance = fix_distance-m_cursor.getInt(4);
+			m_cursor.moveToPosition(index+2);
+			strSQL="UPDATE efficiency SET _distance="+fix_distance+" WHERE _id="+(index+2)+";";
+			m_db.execSQL(strSQL);
+			Log.v("dfef",Integer.toString(fix_distance));
+			data.set(index+2, new ListItem(m_cursor.getString(1),fix_distance,m_cursor.getInt(3),m_cursor.getInt(4)));
 			index++;
+			
 		}
 		
 		try{
@@ -324,24 +347,26 @@ public class EfficiencyActivity extends Activity {
 		catch(SQLException e){
 			Log.v("error", e.toString());
 		}
+		
 		m_cursor.moveToPosition(index);
-		strSQL="UPDATE efficiency SET _distance="+fix_distance+" WHERE _id="+(index+1)+";";
-		m_db.execSQL(strSQL);
+		//strSQL="UPDATE efficiency SET _distance="+fix_distance+" WHERE _id="+(index+1)+";";
+		//m_db.execSQL(strSQL);
+		
 		 do{
 			 if(m_cursor.isLast()){
 				 Log.v("warring","empty");
 			 }
 			 else{
-				 Log.v("Tee21",Integer.toString(m_cursor.getPosition()));
 				 index++;
 				 strSQL="UPDATE efficiency SET _id="+(index-1)+" WHERE _id="+index+";";
 				 m_db.execSQL(strSQL);
-				 Log.v("ttt",Integer.toString(index));
 			 }
 		 }while(m_cursor.moveToNext());
 		 list.invalidate();
 		 adapter.notifyDataSetChanged();
-		 m_db.close();
+		  m_db.close();
+		  m_cursor.close();
+		 Toast.makeText(this,"Data가 삭제 되었습니다.",Toast.LENGTH_SHORT).show();   
 	}
 	
 	public void fix_data(int index){
@@ -353,21 +378,19 @@ public class EfficiencyActivity extends Activity {
 			AlertDialog.Builder builder;
 			AlertDialog dialog;
 			LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
-			View layout=inflater.inflate(R.layout.customdialog,(ViewGroup)findViewById(R.id.customdialog_layout));
+			View layout=inflater.inflate(R.layout.fixcustomdialog,(ViewGroup)findViewById(R.id.customdialog_layout));
 			
 			builder = new AlertDialog.Builder(mContext);
 			
 			editDistance = (EditText)layout.findViewById(R.id.ed_distance);
-			editOil = (EditText)layout.findViewById(R.id.ed_oil);
-			datepick = (DatePicker)layout.findViewById(R.id.datePicker);
-			
+			editOil = (EditText)layout.findViewById(R.id.ed_oil);			
 			builder.setView(layout);
 			
 			builder.setTitle("주유 정보를 입력하세요");
 			
 			editDistance.setText(Integer.toString(temp_item.getTotaldistance()));
 			editOil.setText(Integer.toString(temp_item.getOil()));
-
+			
 			// 다이얼로그 창 띄우기..
 			/*
 			 * 입력 버튼을 만들고 
@@ -376,6 +399,7 @@ public class EfficiencyActivity extends Activity {
 			 */
 			builder.setPositiveButton("수정",new DialogInterface.OnClickListener(){
 				public void onClick(DialogInterface dialog, int which){
+					
 					String str1 = editDistance.getText().toString();
 					String str2 = editOil.getText().toString();
 					int distance=0;
@@ -383,10 +407,6 @@ public class EfficiencyActivity extends Activity {
 						err_alert();
 					}
 					else{
-						// date 정보를 문자열로 저장 . 년 월 일
-						// getMonth() 는  0~11 월, + 1 해줘야 한다.
-						String strDate =datepick.getYear()+"-"+(datepick.getMonth()+1)+"-"+datepick.getDayOfMonth();
-						Log.v("efe",strDate);
 						// DB 를 연다..
 						createTable();
 						m_cursor = m_db.rawQuery("SELECT * FROM efficiency",null);
@@ -399,13 +419,16 @@ public class EfficiencyActivity extends Activity {
 							distance = Integer.parseInt(editDistance.getText().toString())-m_cursor.getInt(4);	
 						}
 						strSQL="UPDATE efficiency SET " +
-								"_date=\""+strDate+
-								"\", _oil="+Integer.parseInt(editOil.getText().toString())+
+								"_oil="+Integer.parseInt(editOil.getText().toString())+
 								", _distance="+distance+
 								", t_distance="+Integer.parseInt(editDistance.getText().toString())+
 								" WHERE _id="+_index+";";
 						m_db.execSQL(strSQL);
-						
+						m_cursor.close();
+
+						m_cursor = m_db.rawQuery("SELECT * FROM efficiency",null);
+						m_cursor.moveToPosition(_index);
+						data.set(_index, new ListItem(m_cursor.getString(1), m_cursor.getInt(2), m_cursor.getInt(3), m_cursor.getInt(4)));
 						m_cursor.moveToPosition(_index);
 						if(!m_cursor.isLast()){
 							m_cursor.moveToPosition(_index+1);
@@ -414,10 +437,16 @@ public class EfficiencyActivity extends Activity {
 							strSQL="UPDATE efficiency SET _distance="+distance+
 									" WHERE _id="+(_index+1)+";";
 							m_db.execSQL(strSQL);
-							arrayListset(_index+1);
+							m_cursor.close();
+							m_cursor = m_db.rawQuery("SELECT * FROM efficiency",null);
+							m_cursor.moveToPosition(_index+1);
+							data.set(_index+1, new ListItem(m_cursor.getString(1), m_cursor.getInt(2), m_cursor.getInt(3), m_cursor.getInt(4)));							
 						}
+						 list.invalidate();
+						 adapter.notifyDataSetChanged();
+						m_cursor.close();
 						m_db.close();
-						Log.v("tee",m_cursor.getString(4));
+						
 					}
 				}
 			});
@@ -430,11 +459,76 @@ public class EfficiencyActivity extends Activity {
 			// 다이얼로그 만들고.. show
 			dialog=builder.create();
 			dialog.show();
-			//m_db.close();
-		
+			//m_db.close();	
+	}
+	public boolean onCreateOptionsMenu(Menu menu) {
+
+	    boolean result = super.onCreateOptionsMenu(menu);
+	    MenuInflater menuInflator = new MenuInflater(this);
+
+	    menuInflator.inflate(R.menu.effmenu, menu);
+	    return result;
+
+	}
+	public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.avgeffi:
+        	String oilString = null;
+        	int _totalDistance =0;
+        	int _totalOil =0;
+        	
+        	if(data.size()==0){
+        	        	}
+        	else{
+        	     	 
+        	for(int i=1;i<data.size();i++){
+     		  _totalOil += data.get(i).getOil();
+        	}
+	        	_totalDistance = data.get(data.size()-1).getTotaldistance()-data.get(0).getTotaldistance();
+	        	double oilEffection = (double) _totalDistance / (double) _totalOil;
+	    		String pattern = "###.#";
+	    		DecimalFormat dformat = new DecimalFormat(pattern);
+	    		oilString = dformat.format(oilEffection);
+        	}       	
+        	
+        	Context mContext = com.smarteco.android.EfficiencyActivity.this;
+			// 다이얼로그 창을 띄우기 위한 객체
+			AlertDialog.Builder builder;
+			AlertDialog dialog;
+					
+			LayoutInflater inflater = (LayoutInflater)mContext.getSystemService(LAYOUT_INFLATER_SERVICE);
+			View layout=inflater.inflate(R.layout.avgcustomdialog,(ViewGroup)findViewById(R.id.avgcustomdialog_layout));
+			builder = new AlertDialog.Builder(mContext);
+			tvavgefficiency = (TextView)layout.findViewById(R.id._avgeffi);
+			tvtotaloil = (TextView)layout.findViewById(R.id._totaloil);
+			tvtotaldistance = (TextView)layout.findViewById(R.id._totaldistance);
+			builder.setView(layout);
+			builder.setTitle("평균 연비");
+			
+			tvavgefficiency.setText(oilString+" Km/L");
+			tvtotaloil.setText(Integer.toString(_totalOil)+" L");
+			tvtotaldistance.setText(Integer.toString(_totalDistance)+" Km");
+			
+			// 다이얼로그 창 띄우기..
+			/*
+			 * 입력 버튼을 만들고 
+			 * editText가 값이 없으면 예외처리...
+			 * 값이 있으면 DB에 값 저장
+			 */
+			builder.setPositiveButton("확인",new DialogInterface.OnClickListener(){
+				public void onClick(DialogInterface dialog, int which){
+					dialog.dismiss();
+					}
+				});
+			// 다이얼로그 만들고.. show
+			dialog=builder.create();
+			dialog.show();
+            return true;
+        }
+        return (super.onOptionsItemSelected(item));
 	}
 	
-	//// 설정에서 DB 초기화..
+	/// 설정에서 DB 초기화..
 	public void dropTable(){
 		createTable();
 		strSQL="drop table efficiency";
@@ -449,15 +543,5 @@ public class EfficiencyActivity extends Activity {
 		catch(SQLException e){
 			Log.v("error", e.toString());
 		}
-	}
-	public void arrayListset(int index){
-		m_cursor.moveToPosition(index);
-		data.set(index, new ListItem(m_cursor.getString(1),		// date
-				m_cursor.getInt(2),		// distance
-				m_cursor.getInt(3),		// oil
-				m_cursor.getInt(4)		// total distance
-				));
-		//ListItem item = data.get(index);
-		
 	}
 }
