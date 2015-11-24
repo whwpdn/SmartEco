@@ -3,63 +3,51 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
 
- 
+    <requestFocus />
 
-        <requestFocus />
-
-        <com.google.android.maps.MapView
-            android:id="@+id/mapview"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:apiKey="@+string/debugapi"
-            android:clickable="true" >
-        </com.google.android.maps.MapView>
-
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:text="주행종료" 
-        android:visibility="invisible"/>
-
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/button2"
-        android:text="주행시작" 
-        android:visibility="visible" />>
-
+    <com.google.android.maps.MapView
+        android:id="@+id/mapview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:apiKey="@+string/releaseapi"
+        android:clickable="true" >
+        <!--android:apiKey="@+string/releaseapi" -->
+        <!--android:apiKey="@+string/debugapi" -->
+        
+    </com.google.android.maps.MapView>
     <TextView
-        android:id="@+id/editText2"
+        android:id="@+id/driveStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginTop="24dp"
         android:ems="10" />
-
+
     <TextView
-        android:id="@+id/editText1"
+        android:id="@+id/distanceInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignTop="@+id/button2"
         android:ems="10" />
-
+
     <Button
-        android:id="@+id/button3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/button2"
+        android:id="@+id/Facebook"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:text="Facebook" 
-        android:visibility="invisible"
-        />
+        android:background="@drawable/facebook"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/Drive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="주행시작"
+        android:visibility="visible" />
 
 </RelativeLayout>
